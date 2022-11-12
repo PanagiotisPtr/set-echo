@@ -106,14 +106,14 @@ func ProvideRouter(
 			return
 		}
 		for _, endpoint := range endpoints {
-			url := fmt.Sprintf("%s:%d/sync", endpoint, port)
+			url := fmt.Sprintf("http://%s:%d/sync", endpoint, port)
 			req, err := http.NewRequest(
 				http.MethodPost,
 				url,
 				bytes.NewReader([]byte{}),
 			)
 			if err != nil {
-				log.Printf("failed to make request for url %s", url)
+				log.Printf("failed to make request for url %s. err: %v", url, err)
 				continue
 			}
 			resp, err := http.DefaultClient.Do(req)
