@@ -1,0 +1,46 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: set-echo-service-account 
+automountServiceAccountToken: true
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: set-echo-deployment
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: set-echo-server
+  template:
+    metadata:
+      labels:
+        app: set-echo-server
+    spec:
+      serviceAccountName: set-echo-service-account 
+      containers:
+      - name: set-echo-deployment
+        image: panagiotisptr/set-echo:latest
+        ports:
+          - containerPort: 8888
+        imagePullPolicy: Always
+        env:
+          - name: REDIS_URL
+            value: redis-service:6379
+          - name: POD_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: set-echo-service
+spec:
+  ports:
+  - name: http
+    port: 8888
+    targetPort: 8888
+  selector:
+    app: set-echo-server
